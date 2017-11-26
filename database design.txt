@@ -1,0 +1,12 @@
+
+Database Design
+
+Database:
+imageSearch
+
+collection:
+queries
+
+Names:
+term
+when

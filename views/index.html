@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+   <head>
+      <title>Image Search Abstraction Layer | Backend Challenges | Free Code Camp</title>
+      <link rel="shortcut icon" href="" type="image/x-icon"/>
+      <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+      <link href="/public/style.css" rel="stylesheet" type="text/css">
+   </head>
+
+   <body>
+      <div class="container">
+         <h1>Image Search Abstraction Layer</h1>
+         <form id="form" action="/input" onSubmit="submitProcess()">
+           <input id="searchString" type="text"><br/><br/>
+           <input type="submit" value="Search">
+         </form>
+         <br/>
+         <br/>
+         <h4><a href="/latest">Recent queries</a></h4>
+         <hr>
+         <h3>How to use:</h3>
+         <p>
+           Input your search query into the textbox and click the button.
+           To see a list of most recent queries. Click the link.
+         </p>
+      </div>
+
+      <script>
+        function submitProcess() {
+          var actionSource = "/input/" + document.getElementById('searchString').value;
+          var form = document.getElementById('form');
+          form.action = actionSource;
+        }
+      </script>
+   </body>
+
+</html>
