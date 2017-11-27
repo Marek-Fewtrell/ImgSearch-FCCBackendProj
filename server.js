@@ -80,18 +80,14 @@ app.route('/latest')
           console.log('Unable to connect to the mongoDB server. Error: '. err);
         } else {
           console.log("Connection establsihed to database.");
-          //console.log(req.params.input);
-          //var query = {"shortened_Id": req.query.};
-          db.collection("queries").find().toArray(function(err, result) {
+          db.collection("queries").find().sort({"_id":-1}).limit(10).toArray(function(err, result) {
             if (err) throw err;
             if (result.length >= 1) {
               console.log("Found Stuff");
-              //console.log(result);
               res.send(result);
             } else {
-              //console.log(result);
               console.log("Doesn't exist.");
-              console.log(result);
+              res.send({'result': "Nothing found"});
             }
             db.close();
           });
