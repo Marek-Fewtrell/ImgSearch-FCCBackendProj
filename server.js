@@ -8,6 +8,7 @@
 var fs = require('fs');
 var express = require('express');
 var app = express();
+var axios =require('axios');
 
 var MongoClient = require('mongodb').MongoClient;
 var url = 'mongodb://localhost:27017/imageSearch';
@@ -43,37 +44,71 @@ app.route('/')
 
 app.route('/input/:searchString')
     .get(function(req, res) {
-      console.log("In here.");
+      console.log("In Search String Section");
       var searchString = req.params.searchString;
-      var offset = 0;
-      console.log(searchString);
+      var offset = -1;
+      console.log("Search String: " + searchString);
       if (req.query.offset) {
         offset = req.query.offset;
         console.log("offset by:" + req.query.offset);
       }
 
       //Image api search
+      var apiKey = "GOOGLE API KEY HERE";
+      var cse = "CUSTOM SEARCH ENGINE KEY HERE";
+      var apiURL = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cse + "&searchType=image&q=" + searchString;
+      if (offset !== -1) {
+        apiURL += "&start=" + offset;
+      }
+      //console.log(apiURL);
+      axios.get(apiURL).then(response => {
+        MongoClient.connect(url, function(err, db) {
+          if (err) {
+            console.log('Unable to connect to the mongoDB server. Error: '. err);
+          } else {
+            console.log("Connection establsihed to database.");
+            //console.log(req.params.input);
+            //var query = {"shortened_Id": req.query.};
+            db.collection("queries").insert({
+              "term": searchString,
+              "when": new Date()
+            });
+          }
+        });
 
-      MongoClient.connect(url, function(err, db) {
-        if (err) {
-          console.log('Unable to connect to the mongoDB server. Error: '. err);
-        } else {
-          console.log("Connection establsihed to database.");
-          //console.log(req.params.input);
-          //var query = {"shortened_Id": req.query.};
-          db.collection("queries").insert({
-            "term": searchString,
-            "when": new Date()
-          });
+        var output = [];
+        //console.log(response.data);
+        var imageList = response.data.items;
+
+        for (var i = 0; i < imageList.length; i++) {
+          var image = {
+            "url": imageList[i].link,
+            "snippet": imageList[i].snippet,
+            "thumbnail": imageList[i].image.thumbnailLink,
+            "context": imageList[i].displayLink
+          };
+          output.push(image);
         }
+
+        console.log(imageList.length);
+        res.send(output);
+
+      }).catch(error => {
+        console.log("Error has occured");
+        console.log(error);
+        res.send("Error Here");
       });
 
-      res.send("Searched for: " + searchString);
+
   });
+
+  function handleIt() {
+
+  }
 
 app.route('/latest')
     .get(function(req, res) {
-      console.log("In latest");
+      console.log("In Latest Section.");
 
       MongoClient.connect(url, function(err, db) {
         if (err) {
@@ -83,10 +118,10 @@ app.route('/latest')
           db.collection("queries").find().sort({"_id":-1}).limit(10).toArray(function(err, result) {
             if (err) throw err;
             if (result.length >= 1) {
-              console.log("Found Stuff");
+              console.log("Found Records");
               res.send(result);
             } else {
-              console.log("Doesn't exist.");
+              console.log("Records Don't Exist.");
               res.send({'result': "Nothing found"});
             }
             db.close();
