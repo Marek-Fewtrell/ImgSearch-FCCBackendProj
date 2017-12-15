@@ -57,6 +57,14 @@ app.route('/input/:searchString')
       var apiKey = "GOOGLE API KEY HERE";
       var cse = "CUSTOM SEARCH ENGINE KEY HERE";
       var apiURL = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cse + "&searchType=image&q=" + searchString;
+      /*
+        API Info
+        https://developers.google.com/custom-search/json-api/v1/using_rest
+        
+        CSE LIST Info
+        https://developers.google.com/custom-search/json-api/v1/reference/cse/list#request
+      */
+
       if (offset !== -1) {
         apiURL += "&start=" + offset;
       }
